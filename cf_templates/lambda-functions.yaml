@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda functions to handle view and update
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project name prefix
+    Default: MyProject
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ProjectName}-LambdaDynamoDBAccessRole"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:*
+                Resource: "*"
+
+  ViewLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-LambdaViewAccount"
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 10
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const docClient = new AWS.DynamoDB.DocumentClient();
+          exports.handler = async (event) => {
+              const uuaa = event.queryStringParameters.uuaa;
+              const params = {
+                  TableName: 'AccountTable',
+                  Key: { UUAA: uuaa }
+              };
+              const data = await docClient.get(params).promise();
+              return {
+                  statusCode: 200,
+                  headers: { "Access-Control-Allow-Origin": "*" },
+                  body: JSON.stringify(data.Item || {})
+              };
+          };
+
+  UpdateLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-LambdaUpdateAccount"
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 10
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const docClient = new AWS.DynamoDB.DocumentClient();
+          exports.handler = async (event) => {
+              const body = JSON.parse(event.body);
+              const params = {
+                  TableName: 'AccountTable',
+                  Item: {
+                      UUAA: body.uuaa,
+                      AccountID: body.accountId,
+                      AccountName: body.accountName
+                  }
+              };
+              await docClient.put(params).promise();
+              return {
+                  statusCode: 200,
+                  headers: { "Access-Control-Allow-Origin": "*" },
+                  body: "Item updated successfully"
+              };
+          };
+
+Outputs:
+  ViewLambdaArn:
+    Value: !GetAtt ViewLambda.Arn
+  UpdateLambdaArn:
+    Value: !GetAtt UpdateLambda.Arn

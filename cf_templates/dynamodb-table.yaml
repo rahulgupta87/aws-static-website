@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDB Table for account storage
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project name prefix
+    Default: MyProject
+
+Resources:
+  AccountTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${ProjectName}-Accounts"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAYPERREQUEST
+
+Outputs:
+  TableName:
+    Description: DynamoDB Table name
+    Value: !Ref AccountTable

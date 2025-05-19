@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Master CloudFormation template to deploy all infrastructure
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: account-portal
+    Description: Project or Stack name prefix
+
+Resources:
+  SSMParameterStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./ssm-parameter.yaml'
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+  DynamoDBStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./dynamodb-table.yaml'
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./lambda-functions.yaml'
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+  ApiGatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./api-gateway.yaml'
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+  S3WebsiteStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./s3-static-site.yaml'
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+Outputs:
+  WebsiteURL:
+    Description: Static website URL
+    Value: !GetAtt S3WebsiteStack.Outputs.WebsiteURL
+
+  ViewAPIEndpoint:
+    Description: API Gateway view endpoint
+    Value: !GetAtt ApiGatewayStack.Outputs.ViewAPIEndpoint
+
+  UpdateAPIEndpoint:
+    Description: API Gateway update endpoint
+    Value: !GetAtt ApiGatewayStack.Outputs.UpdateAPIEndpoint

@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create SSM Parameter for tracking DynamoDB item IDs
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project name prefix
+    Default: MyProject
+
+Resources:
+  CurrentIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${ProjectName}/current-id"
+      Type: String
+      Value: "0"
+      Description: "Holds the current ID used for DynamoDB inserts"
+      Tier: Standard
+
+Outputs:
+  ParameterName:
+    Description: Name of the SSM Parameter created
+    Value: !Ref CurrentIdParameter

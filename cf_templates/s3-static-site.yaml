@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Static website hosting in S3
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project name prefix
+    Default: MyProject
+    
+Resources:
+  StaticWebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-s3-static-website'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      AccessControl: PublicRead
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticWebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal: '*'
+            Resource: !Sub '${StaticWebsiteBucket.Arn}/*'
+
+Outputs:
+  WebsiteURL:
+    Description: URL of the website
+    Value: !GetAtt StaticWebsiteBucket.WebsiteURL
