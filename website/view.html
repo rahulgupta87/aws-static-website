@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Page</title>
+  <link rel="stylesheet" href="./css/commonStyle.css">
+  <link rel="stylesheet" href="./css/response.css" />
+  <link rel="stylesheet" href="./css/update.css" />
+</head>
+<body>
+  <div id="header"></div>
+  
+  <main>
+    <input type="text" id="uuaa" placeholder="Enter UUAA" /><br>
+    <button onclick="getAccount()">Submit</button>
+    <pre id="result"></pre>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    async function getAccount() {
+    const uuaa = document.getElementById('uuaa').value;
+    const res = await fetch(`https://934bt8mkt3.execute-api.us-east-1.amazonaws.com/dev/view?uuaa=${uuaa}`);
+    const jsonResponse = await res.json();
+
+    // jsonResponse.body is a JSON string, so parse it again
+    const data = JSON.parse(jsonResponse.body);
+
+    // Create HTML table string
+    const tableHTML = `
+      <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; margin-top: 10px;">
+        <thead>
+          <tr>
+            <th>UUAA</th>
+            <th>AccountID</th>
+            <th>AccountName</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${data.UUAA}</td>
+            <td>${data.AccountID}</td>
+            <td>${data.AccountName}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('result').innerHTML = tableHTML;
+  }
+  </script>
+
+  <script>
+    // Load shared components from the "common" folder
+    const loadHTML = async (id, file) => {
+      const res = await fetch(`common/${file}`);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    };
+
+    loadHTML("header", "header.html");
+    loadHTML("menu", "menu.html");
+    loadHTML("footer", "footer.html");
+  </script>
+</body>
+</html>

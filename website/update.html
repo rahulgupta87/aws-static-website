@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Update Page</title>
+  <link rel="stylesheet" href="./css/commonStyle.css">
+  <link rel="stylesheet" href="./css/response.css" />
+  <link rel="stylesheet" href="./css/update.css" />
+</head>
+<body>
+  <div id="header"></div>
+  
+  <main>
+    <input type="text" id="uuaa" placeholder="Enter UUAA" /><br>
+    <input type="text" id="accId" placeholder="Enter Account ID" /><br>
+    <input type="text" id="accName" placeholder="Enter Account Name" /><br>
+    <button onclick="updateAccount()">Submit</button>
+    <pre id="result" class="response-message"></pre>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    async function updateAccount() {
+      const uuaa = document.getElementById('uuaa').value;
+      const accId = document.getElementById('accId').value;
+      const accName = document.getElementById('accName').value;
+
+      const res = await fetch('https://934bt8mkt3.execute-api.us-east-1.amazonaws.com/dev/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuaa, accountId: accId, accountName: accName })
+      });
+
+      const text = await res.text();
+      try {
+        const data = JSON.parse(text);
+        document.getElementById('result').innerText = data.body;
+      } catch(e) {
+        // fallback, if it's just plain text
+        document.getElementById('result').innerText = text;
+      }
+      document.getElementById('result').innerText = data.body;
+    }
+  </script>
+
+  <script>
+    // Load shared components from the "common" folder
+    const loadHTML = async (id, file) => {
+      const res = await fetch(`common/${file}`);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    };
+
+    loadHTML("header", "header.html");
+    loadHTML("menu", "menu.html");
+    loadHTML("footer", "footer.html");
+  </script>
+
+</body>
+</html>

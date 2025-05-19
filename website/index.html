@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Main Page</title>
+  <link rel="stylesheet" href="./css/commonStyle.css">
+</head>
+<body>
+  <div id="header"></div>
+
+  <main>
+    <h2>Welcome!</h2>
+    <p>Please use the menu above to view or update account details.</p>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    // Load shared components from the "common" folder
+    const loadHTML = async (id, file) => {
+      const res = await fetch(`common/${file}`);
+      const text = await res.text();
+      document.getElementById(id).innerHTML = text;
+    };
+
+    loadHTML("header", "header.html");
+    loadHTML("menu", "menu.html");
+    loadHTML("footer", "footer.html");
+  </script>
+</body>
+</html>
